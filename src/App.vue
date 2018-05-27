@@ -7,6 +7,7 @@
 <script>
 import AppToolbar from './components/AppToolbar.vue'
 import AppSearch from './components/AppSearch.vue'
+
 export default{
   components: {
     AppToolbar,
