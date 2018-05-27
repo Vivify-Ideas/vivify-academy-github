@@ -4,9 +4,10 @@
       <div class="content">
         <app-search :query.sync="query" placeholder="Search by username"/>
         <v-ons-progress-circular class="loader" indeterminate v-if="isFetching"/>
-        <v-ons-list v-if="!isFetching && query">
+        <not-found v-if="show404" />
+        <v-ons-list v-if="showList">
           <v-ons-list-header>Repositories of {{ query }}</v-ons-list-header>
-          <v-ons-list-item tappable v-for="repo in repos" :key="repo.id">
+          <v-ons-list-item tappable v-for="repo in repos" :key="repo.id" v-if="repos.length">
             <div class="left">
               <img class="list-item__thumbnail" :src="repo.owner.avatar_url">
             </div>
@@ -16,7 +17,7 @@
             </div>
           </v-ons-list-item>
         </v-ons-list>
-        <empty-state v-if="!isFetching && !repos.length" type="repository" />
+        <empty-state v-if="showEmptyState" type="repository" />
       </div>
     </v-ons-page>
 </template>
@@ -26,42 +27,61 @@ import debounce from 'lodash/debounce'
 import AppToolbar from './components/AppToolbar.vue'
 import AppSearch from './components/AppSearch.vue'
 import EmptyState from './components/EmptyState.vue'
+import NotFound from './components/404.vue'
 import { gitHub } from './services'
 
 export default {
   components: {
     AppToolbar,
     AppSearch,
-    EmptyState
+    EmptyState,
+    NotFound
   },
 
   data () {
     return {
       query: '',
       repos: [],
-      isFetching: false
+      isFetching: false,
+      notFound: false
     }
   },
 
   methods: {
     getRepos: debounce(function () {
-      this.toggleFetching()
+      this.notFound = false
       gitHub.getRepos(this.query)
         .then((response) => {
           this.repos = response.data
+        }).catch((error) => {
+          if ( error.response.status === 404 ) {
+            this.notFound = true
+            this.repos = []
+          }
         }).finally(() => {
-          this.toggleFetching()
+          this.isFetching = false
         })
-    }, 500),
-
-    toggleFetching () {
-      this.isFetching = !this.isFetching
-    }
+    }, 500)
   },
 
   watch: {
     query (value) {
+      this.isFetching = true
       this.getRepos(value)
+    }
+  },
+
+  computed: {
+    showEmptyState () {
+      return this.query && !this.notFound && !this.isFetching && !this.repos.length
+    },
+
+    show404 () {
+      return this.notFound && !this.isFetching
+    },
+
+    showList () {
+      return this.query && !this.notFound && !this.isFetching && this.repos.length
     }
   }
 }
