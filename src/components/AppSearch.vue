@@ -17,9 +17,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-  .search {
-    padding: 10px 20px;
-  }
-</style>
