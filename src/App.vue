@@ -16,6 +16,7 @@
             </div>
           </v-ons-list-item>
         </v-ons-list>
+        <empty-state v-if="!isFetching && !repos.length" type="repository" />
       </div>
     </v-ons-page>
 </template>
@@ -24,12 +25,14 @@
 import debounce from 'lodash/debounce'
 import AppToolbar from './components/AppToolbar.vue'
 import AppSearch from './components/AppSearch.vue'
+import EmptyState from './components/EmptyState.vue'
 import { gitHub } from './services'
 
 export default {
   components: {
     AppToolbar,
-    AppSearch
+    AppSearch,
+    EmptyState
   },
 
   data () {
