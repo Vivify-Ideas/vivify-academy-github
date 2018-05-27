@@ -3,7 +3,8 @@
       <app-toolbar />
       <div class="content">
         <app-search :query.sync="query" placeholder="Search by username"/>
-        <v-ons-list v-if="query">
+        <v-ons-progress-circular class="loader" indeterminate v-if="isFetching"/>
+        <v-ons-list v-if="!isFetching && query">
           <v-ons-list-header>Repositories of {{ query }}</v-ons-list-header>
           <v-ons-list-item tappable v-for="repo in repos" :key="repo.id">
             <div class="left">
@@ -34,17 +35,25 @@ export default {
   data () {
     return {
       query: '',
-      repos: []
+      repos: [],
+      isFetching: false
     }
   },
 
   methods: {
     getRepos: debounce(function () {
+      this.toggleFetching()
       gitHub.getRepos(this.query)
         .then((response) => {
           this.repos = response.data
+        }).finally(() => {
+          this.toggleFetching()
         })
-    }, 500)
+    }, 500),
+
+    toggleFetching () {
+      this.isFetching = !this.isFetching
+    }
   },
 
   watch: {
@@ -54,3 +63,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .loader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
