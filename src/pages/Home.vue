@@ -9,7 +9,7 @@
           <v-ons-list-header>
             Repositories of {{ query }}
           </v-ons-list-header>
-          <v-ons-button modifier="large cta">View Profile</v-ons-button>
+          <v-ons-button modifier="large cta" @click="goToUserProfile">View Profile</v-ons-button>
           <v-ons-list-item tappable v-for="repo in repos" :key="repo.id" v-if="repos.length">
             <div class="left">
               <img class="list-item__thumbnail" :src="repo.owner.avatar_url">
@@ -31,6 +31,7 @@ import AppToolbar from '../components/AppToolbar.vue'
 import AppSearch from '../components/AppSearch.vue'
 import EmptyState from '../components/EmptyState.vue'
 import NotFound from '../components/404.vue'
+import Profile from './Profile.vue'
 import { gitHub } from '../services'
 
 export default {
@@ -64,7 +65,16 @@ export default {
         }).finally(() => {
           this.isFetching = false
         })
-    }, 500)
+    }, 500),
+
+    goToUserProfile () {
+      this.$emit('push-page', {
+        extends: Profile,
+        onsNavigatorProps: {
+          username: this.query
+        }
+      })
+    }
   },
 
   watch: {
