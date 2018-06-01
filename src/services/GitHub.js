@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_TOKEN = ''
+const API_TOKEN = '4fc916fa2ab0b640529233730f95b134ce913060'
 
 export default class GitHubService {
   constructor () {
